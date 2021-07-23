@@ -10,7 +10,7 @@
 *
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,24 +25,24 @@ package org.luaj.vm2;
 import java.io.File;
 
 /**
- * RuntimeException that is thrown and caught in response to a lua error. 
+ * RuntimeException that is thrown and caught in response to a lua error.
  * <p>
- * {@link LuaError} is used wherever a lua call to {@code error()} 
- * would be used within a script.
+ * {@link LuaError} is used wherever a lua call to {@code error()} would be used
+ * within a script.
  * <p>
  * Since it is an unchecked exception inheriting from {@link RuntimeException},
- * Java method signatures do notdeclare this exception, althoug it can 
- * be thrown on almost any luaj Java operation.
- * This is analagous to the fact that any lua script can throw a lua error at any time.
- * <p> 
- * The LuaError may be constructed with a message object, in which case the message
- * is the string representation of that object.  getMessageObject will get the object
- * supplied at construct time, or a LuaString containing the message of an object 
- * was not supplied.
+ * Java method signatures do notdeclare this exception, althoug it can be thrown
+ * on almost any luaj Java operation. This is analagous to the fact that any lua
+ * script can throw a lua error at any time.
+ * <p>
+ * The LuaError may be constructed with a message object, in which case the
+ * message is the string representation of that object. getMessageObject will
+ * get the object supplied at construct time, or a LuaString containing the
+ * message of an object was not supplied.
  */
 public class LuaError extends RuntimeException {
 	private static final long serialVersionUID = 1L;
-	
+
 	protected int level;
 
 	protected File file;
@@ -50,9 +50,9 @@ public class LuaError extends RuntimeException {
 	protected int line;
 
 	protected String fileline;
-	
+
 	protected String traceback;
-	
+
 	protected Throwable cause;
 
 	private LuaValue object;
@@ -60,7 +60,7 @@ public class LuaError extends RuntimeException {
 	/** Get the string message if it was supplied, or a string 
 	 * representation of the message object if that was supplied. (with fileline info if present)
 	 */
-     @Override
+	@Override
 	public String getMessage() {
 		if (traceback != null)
 			return traceback;
@@ -82,24 +82,28 @@ public class LuaError extends RuntimeException {
 			return super.getMessage();
 	}
 
-	/** Get the LuaValue that was provided in the constructor, or 
-	 * a LuaString containing the message if it was a string error argument.
+	/**
+	 * Get the LuaValue that was provided in the constructor, or a LuaString
+	 * containing the message if it was a string error argument.
+	 *
 	 * @return LuaValue which was used in the constructor, or a LuaString
-	 * containing the message.
+	 *         containing the message.
 	 */
 	public LuaValue getMessageObject() {
-		if (object != null) return object;
+		if (object != null)
+			return object;
 		String m = getMessage();
-		return m != null ? LuaValue.valueOf(m): null;
+		return m != null? LuaValue.valueOf(m): null;
 	}
 	
 	/** Construct LuaError when a program exception occurs. 
 	 * <p> an
 	 * All errors generated from lua code should throw LuaError(String) instead.
-	 * @param cause the Throwable that caused the error, if known.  
+	 *
+	 * @param cause the Throwable that caused the error, if known.
 	 */
 	public LuaError(Throwable cause) {
-		super( "vm error: "+cause );
+		super("vm error: " + cause);
 		this.cause = cause;
 		this.level = 1;
 	}
@@ -110,35 +114,38 @@ public class LuaError extends RuntimeException {
 	}
 
 	/**
-	 * Construct a LuaError with a specific message.  
-	 *  
+	 * Construct a LuaError with a specific message.
+	 *
 	 * @param message message to supply
 	 */
 	public LuaError(String message, File file, int line) {
 		super( message );
 		this.level = 1;
-	}		
+	}
 
 	/**
-	 * Construct a LuaError with a message, and level to draw line number information from.
+	 * Construct a LuaError with a message, and level to draw line number
+	 * information from.
+	 *
 	 * @param message message to supply
-	 * @param level where to supply line info from in call stack
+	 * @param level   where to supply line info from in call stack
 	 */
 	public LuaError(String message, int level) {
-		super( message );
+		super(message);
 		this.level = level;
-	}	
+	}
 
 	/**
-	 * Construct a LuaError with a LuaValue as the message object,
-	 * and level to draw line number information from.
+	 * Construct a LuaError with a LuaValue as the message object, and level to
+	 * draw line number information from.
+	 *
 	 * @param message_object message string or object to supply
 	 */
 	public LuaError(LuaValue message_object) {
-		super( message_object.tojstring() );
+		super(message_object.tojstring());
 		this.object = message_object;
 		this.level = 1;
-	}	
+	}
 
 	public File getFile() {
 		return file;
@@ -151,9 +158,7 @@ public class LuaError extends RuntimeException {
 	/** 
 	 * Get the cause, if any.
 	 */
-	public Throwable getCause() {
-		return cause;
-	}
-
+	@Override
+	public Throwable getCause() { return cause; }
 
 }
