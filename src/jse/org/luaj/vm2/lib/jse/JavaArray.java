@@ -26,7 +26,9 @@ import java.lang.reflect.Array;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaUserdata;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.VarArgFunction;
 
 /**
  * LuaValue that represents a Java instance of array type.
@@ -47,16 +49,36 @@ class JavaArray extends LuaUserdata {
 		}
 	}
 
-	static final LuaValue LENGTH = valueOf("length");
-	
-	static final LuaTable array_metatable;
-	static {
-		array_metatable = new LuaTable();
-		array_metatable.rawset(LuaValue.LEN, new LenFunction());
+	private static final class IPairsFunction extends VarArgFunction {
+
+		@Override
+		public Varargs invoke(Varargs args) {
+
+			return varargsOf(new VarArgFunction() {
+				@Override
+				public Varargs invoke(Varargs args) {
+					Object list = (Object) ((LuaUserdata)args.arg1()).m_instance;
+					int index = args.arg(2).toint();
+					if (index == Array.getLength(list)) return NIL;
+					return varargsOf(LuaValue.valueOf(index + 1), CoerceJavaToLua.coerce(Array.get(list, index)));
+				}
+			}, args.arg1(), LuaValue.valueOf(0));
+		}
 	}
-	
+
+	static final LuaValue LENGTH = valueOf("length");
+
+	static final LenFunction len_func = new LenFunction();
+	static final IPairsFunction ipairs_func = new IPairsFunction();
+
+
 	JavaArray(Object instance) {
 		super(instance);
+
+		LuaTable array_metatable = new LuaTable();
+		array_metatable.set(LuaValue.LEN, len_func);
+		array_metatable.set(LuaValue.IPAIRS, ipairs_func);
+		array_metatable.set(LuaValue.PAIRS, ipairs_func);
 		setmetatable(array_metatable);
 	}
 	

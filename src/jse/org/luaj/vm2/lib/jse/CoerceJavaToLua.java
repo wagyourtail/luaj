@@ -23,6 +23,7 @@ package org.luaj.vm2.lib.jse;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.luaj.vm2.LuaDouble;
@@ -177,6 +178,11 @@ public class CoerceJavaToLua {
 	public static LuaValue coerce(Object o) {
 		if ( o == null )
 			return LuaValue.NIL;
+		if (o instanceof Map) {
+			return new JavaMap((Map) o);
+		} else if (o instanceof List) {
+			return new JavaList((List) o);
+		}
 		Class clazz = o.getClass();
 		Coercion c = (Coercion) COERCIONS.get( clazz );
 		if ( c == null ) {

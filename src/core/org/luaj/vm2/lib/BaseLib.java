@@ -323,7 +323,9 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 			return argerror(2,"nil or table expected");
 		}
 		public LuaValue call(LuaValue table, LuaValue metatable) {
-			final LuaValue mt0 = table.checktable().getmetatable();
+			if (!table.isuserdata() && !table.istable()) argerror(1, "table or userdata expected");
+
+			final LuaValue mt0 = table.getmetatable();
 			if ( mt0!=null && !mt0.rawget(METATABLE).isnil() )
 				error("cannot change a protected metatable");
 			return table.setmetatable(metatable.isnil()? null: metatable.checktable());
@@ -398,8 +400,14 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 		pairs(next next) {
 			this.next = next;
 		}
+
 		public Varargs invoke(Varargs args) {
-				return varargsOf( next, args.checktable(1), NIL );
+			LuaValue meta = args.arg1().getmetatable();
+			LuaValue __pairs;
+			if(meta!=null && (__pairs = meta.get(LuaValue.PAIRS)).isfunction()) {
+				return __pairs.invoke(args);
+			}
+			return varargsOf( next, args.checktable(1), NIL );
 		}
 	}
 	
@@ -407,6 +415,11 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 	static final class ipairs extends VarArgFunction {
 		inext inext = new inext();
 		public Varargs invoke(Varargs args) {
+			LuaValue meta = args.arg1().getmetatable();
+			LuaValue __ipairs;
+			if(meta != null && (__ipairs = meta.get(LuaValue.IPAIRS)).isfunction()) {
+				return __ipairs.invoke(args);
+			}
 			return varargsOf( inext, args.checktable(1), ZERO );
 		}
 	}
