@@ -271,7 +271,7 @@ public class LexState extends Constants {
 	void setinput(LuaC.CompileState L, int firstByte, InputStream z, LuaString source) {
 		this.decpoint = '.';
 		this.L = L;
-		this.lookahead.token = TK_EOF; /* no look-ahead token */
+		this.lookahead.token = TK_EOS; /* no look-ahead token */
 		this.z = z;
 		this.fs = null;
 		this.linenumber = 1;
@@ -473,7 +473,7 @@ public class LexState extends Constants {
 		while ( current != del ) {
 			switch (current) {
 			case EOZ:
-				lexerror("unfinished string", TK_EOF);
+				lexerror("unfinished string", TK_EOS);
 				continue; /* to avoid warnings */
 			case '\n':
 			case '\r':
@@ -1069,7 +1069,7 @@ public class LexState extends Constants {
 		fs.exp2nextreg(v); /* fix it at stack top (for GC) */
 	}
 
-	void open_func(FuncState fs, BlockCnt bl) {
+	void open_func(FuncState fs, FuncState.BlockCnt bl) {
 		fs.prev = this.fs; /* linked list of funcstates */
 		fs.ls = this;
 		this.fs = fs;
@@ -1588,7 +1588,7 @@ public class LexState extends Constants {
 	void block() {
 		/* block -> chunk */
 		FuncState fs = this.fs;
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		fs.enterblock(bl, false);
 		this.statlist();
 		fs.leaveblock();
@@ -1717,7 +1717,7 @@ public class LexState extends Constants {
 		FuncState fs = this.fs;
 		int whileinit;
 		int condexit;
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		this.next(); /* skip WHILE */
 		whileinit = fs.getlabel();
 		condexit = this.cond();
@@ -1856,7 +1856,7 @@ public class LexState extends Constants {
 	void test_then_block(IntPtr escapelist) {
 		/* test_then_block -> [IF | ELSEIF] cond THEN block */
 		expdesc v = new expdesc();
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		int jf; /* instruction to skip 'then' code (if condition is false) */
 		this.next(); /* skip IF or ELSEIF */
 		expr(v); /* read expression */
@@ -2077,7 +2077,7 @@ public class LexState extends Constants {
 	** upvalue named LUA_ENV
 	*/
 	public void mainfunc(FuncState funcstate) {
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		open_func(funcstate, bl);
 		fs.f.is_vararg = 1; /* main function is always vararg */
 		expdesc v = new expdesc();

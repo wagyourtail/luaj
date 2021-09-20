@@ -23,11 +23,7 @@ package org.luaj.vm2.lib;
 
 import java.io.IOException;
 import java.time.format.TextStyle;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.luaj.vm2.Buffer;
 import org.luaj.vm2.Globals;
@@ -165,7 +161,7 @@ public class OsLib extends TwoArgFunction {
 					long t = args.isnumber(2)? args.tolong(2): time(null);
 					if (s.equals("*t")) {
 						Calendar d = Calendar.getInstance();
-						d.setTime(new Date(t*1000));
+						d.setTimeInMillis(t*1000L);
 						LuaTable tbl = LuaValue.tableOf();
 						tbl.set("year", LuaValue.valueOf(d.get(Calendar.YEAR)));
 						tbl.set("month", LuaValue.valueOf(d.get(Calendar.MONTH)+1));
@@ -174,7 +170,7 @@ public class OsLib extends TwoArgFunction {
 						tbl.set("min", LuaValue.valueOf(d.get(Calendar.MINUTE)));
 						tbl.set("sec", LuaValue.valueOf(d.get(Calendar.SECOND)));
 						tbl.set("wday", LuaValue.valueOf(d.get(Calendar.DAY_OF_WEEK)));
-						tbl.set("yday", LuaValue.valueOf(d.get(0x6))); // Day of year
+						tbl.set("yday", LuaValue.valueOf(d.get(Calendar.DAY_OF_YEAR)));
 						tbl.set("isdst", LuaValue.valueOf(isDaylightSavingsTime(d)));
 						return tbl;
 					}
@@ -252,7 +248,7 @@ public class OsLib extends TwoArgFunction {
 	 *         according to the given string format.
 	 */
 	private static String date(String format, long timeInSec) {
-		Calendar d = Calendar.getInstance();
+		Calendar d = Calendar.getInstance(TimeZone.getDefault());
 		d.setTime(new Date(timeInSec*1000));
 		if (format.startsWith("!")) {
 			timeInSec -= timeZoneOffset(d);

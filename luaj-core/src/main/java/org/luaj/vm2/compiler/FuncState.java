@@ -23,13 +23,7 @@ package org.luaj.vm2.compiler;
 
 import java.util.Hashtable;
 
-import org.luaj.vm2.LocVars;
-import org.luaj.vm2.LuaDouble;
-import org.luaj.vm2.LuaInteger;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Prototype;
-import org.luaj.vm2.Upvaldesc;
+import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LexState.ConsControl;
 import org.luaj.vm2.compiler.LexState.expdesc;
 
