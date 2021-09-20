@@ -1,6 +1,5 @@
 package org.luaj.vm2.lib.jse;
 
-import jdk.jshell.execution.Util;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaUserdata;
 import org.luaj.vm2.LuaValue;
