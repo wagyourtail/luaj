@@ -126,11 +126,11 @@ public class LuaClosure extends LuaFunction {
 	public LuaClosure checkclosure() {
 		return this;
 	}
-	
+
 	public String tojstring() {
 		return "function: " + p.toString();
 	}
-	
+
 	private LuaValue[] getNewStack() {
 		int max = p.maxstacksize;
 		LuaValue[] stack = new LuaValue[max];
@@ -551,24 +551,8 @@ public class LuaClosure extends LuaFunction {
 	}
 
 	private void processErrorHooks(LuaError le, Prototype p, int pc) {
-		String file = "?";
-		int line = -1;
-		{
-			CallFrame frame = null;
-			if (globals != null && globals.debuglib != null) {
-				frame = globals.debuglib.getCallFrame(le.level);
-				if (frame != null) {
-					String src = frame.shortsource();
-					file = src != null ? src : "?";
-					line = frame.currentline();
-				}
-			}
-			if (frame == null) {
-				file = p.source != null? p.source.tojstring(): "?";
-				line = p.lineinfo != null && pc >= 0 && pc < p.lineinfo.length ? p.lineinfo[pc] : -1;
-			}
-		}
-		le.fileline = file + ":" + line;
+		le.fileline = (p.source != null? p.source.tojstring(): "?") + ":"
+			+ (p.lineinfo != null && pc >= 0 && pc < p.lineinfo.length? String.valueOf(p.lineinfo[pc]): "?") + ": ";
 		le.traceback = errorHook(le.getMessage(), le.level);
 		if (p.source != null) {
 			le.file = fileChunkId(p.source.tojstring());

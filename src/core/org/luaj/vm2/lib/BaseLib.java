@@ -78,7 +78,6 @@ import org.luaj.vm2.Varargs;
 public class BaseLib extends TwoArgFunction implements ResourceFinder {
 	
 	Globals globals;
-	
 
 	/** Perform one-time initialization on the library by adding base functions
 	 * to the supplied environment, and returning it as the return value.
@@ -113,8 +112,8 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 
 		next next;
 		env.set("next", next = new next());
-		env.set("pairs", new pairs(next));
-		env.set("ipairs", new ipairs());
+		env.set("pairs", new pairsbase(PAIRS, NIL, next));
+		env.set("ipairs", new pairsbase(IPAIRS, ZERO, new inext()));
 		
 		return env;
 	}
@@ -351,8 +350,11 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 	static final class tostring extends LibFunction {
 		public LuaValue call(LuaValue arg) {
 			LuaValue h = arg.metatag(TOSTRING);
-			if ( ! h.isnil() )
-				return h.call(arg);
+			if ( ! h.isnil() ) {
+				LuaValue v = h.call(arg);
+				LuaValue vs = v.tostring();
+				return !vs.isnil() ? vs : v;
+			}
 			LuaValue v = arg.tostring();
 			if ( ! v.isnil() )
 				return v;
@@ -393,12 +395,17 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 			}
 		}
 	}
-	
-	// "pairs" (t) -> iter-func, t, nil
-	static final class pairs extends VarArgFunction {
-		final next next;
-		pairs(next next) {
-			this.next = next;
+
+	// pairsbase, // (t) -> iter-func, t, initial
+	static final class pairsbase extends VarArgFunction {
+		final LuaString method;
+		final LuaValue initial;
+		final VarArgFunction iter;
+
+		pairsbase(LuaString method, LuaValue initial, VarArgFunction iter) {
+			this.method = method;
+			this.initial = initial;
+			this.iter = iter;
 		}
 
 		public Varargs invoke(Varargs args) {

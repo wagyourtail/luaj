@@ -99,7 +99,7 @@ package org.luaj.vm2;
  * {@link #INDEX}, {@link #NEWINDEX}, {@link #CALL}, {@link #MODE}, {@link #METATABLE},
  * {@link #ADD}, {@link #SUB}, {@link #DIV}, {@link #MUL}, {@link #POW},
  * {@link #MOD}, {@link #UNM}, {@link #LEN}, {@link #EQ}, {@link #LT},
- * {@link #LE}, {@link #TOSTRING}, and {@link #CONCAT}.
+ * {@link #LE}, {@link #TOSTRING}, {@link #CONCAT}, {@link PAIRS} and {@link IPAIRS}.
  * 
  * @see org.luaj.vm2.lib.jse.JsePlatform
  * @see org.luaj.vm2.lib.jme.JmePlatform
@@ -248,7 +248,13 @@ public class LuaValue extends Varargs {
 
 	/** LuaString constant with value "__concat" for use as metatag */
 	public static final LuaString CONCAT      = valueOf("__concat");
-	
+
+	/** LuaString constant with value "__pairs" for use as metatag */
+	public static final LuaString PAIRS = valueOf("__pairs");
+
+	/** LuaString constant with value "__ipairs" for use as metatag */
+	public static final LuaString IPAIRS = valueOf("__ipairs");
+
 	/** LuaString constant with value "" */
 	public static final LuaString EMPTYSTRING = valueOf("");
 
@@ -535,7 +541,7 @@ public class LuaValue extends Varargs {
 	 * @see #isstring()
 	 * @see #TSTRING
 	 */
-	public String  tojstring()           { return typename() + ": " + Integer.toHexString(hashCode()); }
+	public String  tojstring()           { return typename() + ": 0x" + Integer.toHexString(hashCode()); }
 	
 	/** Convert to userdata instance, or null.
 	 * @return userdata instance if userdata, or null if not {@link LuaUserdata}
@@ -1059,7 +1065,7 @@ public class LuaValue extends Varargs {
 	 * @param expected String naming the type that was expected
 	 * @throws LuaError in all cases
 	 */
-	protected LuaValue argerror(String expected) { throw new LuaError("bad argument: "+expected+" expected, got "+typename()); }
+	protected LuaValue argerror(String expected) { throw new LuaError("bad argument ("+expected+" expected, got "+typename()+")"); }
 	
 	/**
 	 * Throw a {@link LuaError} indicating an invalid argument was supplied to a function
@@ -1067,7 +1073,7 @@ public class LuaValue extends Varargs {
 	 * @param msg String providing information about the invalid argument
 	 * @throws LuaError in all cases
 	 */
-	public static LuaValue argerror(int iarg,String msg) { throw new LuaError("bad argument #"+iarg+": "+msg); }
+	public static LuaValue argerror(int iarg,String msg) { throw new LuaError("bad argument #"+iarg+" ("+msg+")"); }
 	
 	/**
 	 * Throw a {@link LuaError} indicating an invalid type was supplied to a function
