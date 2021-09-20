@@ -21,6 +21,7 @@
 ******************************************************************************/
 package org.luaj.vm2.compiler;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -170,7 +171,7 @@ public class LexState extends Constants {
 	static {
 		for ( int i=0; i<NUM_RESERVED; i++ ) {
 			LuaString ts = (LuaString) LuaValue.valueOf( luaX_tokens[i] );
-			RESERVED.put(ts, new Integer(FIRST_RESERVED+i));
+			RESERVED.put(ts, FIRST_RESERVED + i);
 		}
 	}
 
@@ -263,7 +264,15 @@ public class LexState extends Constants {
 		L.pushfstring( cid+":"+linenumber+": "+msg );
 		if ( token != 0 )
 			L.pushfstring( "syntax error: "+msg+" near "+txtToken(token) );
-		throw new LuaError(cid+":"+linenumber+": "+msg);
+		File f = null;
+		throw new LuaError(cid+":"+linenumber+": "+msg, fileChunkId(source.tojstring()), linenumber);
+	}
+
+	File fileChunkId(String source) {
+		if (source != null && (source.startsWith("=") || source.startsWith("@"))) {
+			return new File(source.substring(1));
+		}
+		return null;
 	}
 
 	void syntaxerror( String msg ) {

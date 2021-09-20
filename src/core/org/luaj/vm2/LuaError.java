@@ -22,6 +22,8 @@
 package org.luaj.vm2;
 
 
+import java.io.File;
+
 /**
  * RuntimeException that is thrown and caught in response to a lua error. 
  * <p>
@@ -42,7 +44,11 @@ public class LuaError extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	
 	protected int level;
-	
+
+	protected File file;
+
+	protected int line;
+
 	protected String fileline;
 	
 	protected String traceback;
@@ -52,8 +58,9 @@ public class LuaError extends RuntimeException {
 	private LuaValue object;
 	
 	/** Get the string message if it was supplied, or a string 
-	 * representation of the message object if that was supplied.
+	 * representation of the message object if that was supplied. (with fileline info if present)
 	 */
+     @Override
 	public String getMessage() {
 		if (traceback != null)
 			return traceback;
@@ -63,6 +70,16 @@ public class LuaError extends RuntimeException {
 		if (fileline != null)
 			return fileline + " " + m;
 		return m;
+	}
+
+	/** Get the string message if it was supplied or a string
+	 * representation of the message object if that was supplied.
+	 */
+	public String getErrorMessage() {
+		if (traceback != null)
+			return traceback;
+		else
+			return super.getMessage();
 	}
 
 	/** Get the LuaValue that was provided in the constructor, or 
@@ -87,12 +104,17 @@ public class LuaError extends RuntimeException {
 		this.level = 1;
 	}
 
+	public LuaError(String message) {
+		super(message);
+		this.level = 1;
+	}
+
 	/**
 	 * Construct a LuaError with a specific message.  
 	 *  
 	 * @param message message to supply
 	 */
-	public LuaError(String message) {
+	public LuaError(String message, File file, int line) {
 		super( message );
 		this.level = 1;
 	}		
@@ -118,6 +140,13 @@ public class LuaError extends RuntimeException {
 		this.level = 1;
 	}	
 
+	public File getFile() {
+		return file;
+	}
+
+	public int getLine() {
+		return line;
+	}
 
 	/** 
 	 * Get the cause, if any.

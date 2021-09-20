@@ -23,6 +23,8 @@ package org.luaj.vm2;
 
 import org.luaj.vm2.lib.DebugLib.CallFrame;
 
+import java.io.File;
+
 /**
  * Extension of {@link LuaFunction} which executes lua bytecode.
  * <p>
@@ -568,6 +570,17 @@ public class LuaClosure extends LuaFunction {
 		}
 		le.fileline = file + ":" + line;
 		le.traceback = errorHook(le.getMessage(), le.level);
+		if (p.source != null) {
+			le.file = fileChunkId(p.source.tojstring());
+		}
+		le.line = p.lineinfo != null && pc > 0 && pc < p.lineinfo.length ? p.lineinfo[pc] : -1;
+	}
+
+	File fileChunkId(String source) {
+		if (source != null && (source.startsWith("=") || source.startsWith("@"))) {
+			return new File(source.substring(1));
+		}
+		return null;
 	}
 	
 	private UpValue findupval(LuaValue[] stack, short idx, UpValue[] openups) {
