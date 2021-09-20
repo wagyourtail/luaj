@@ -249,7 +249,7 @@ public class LuaString extends LuaValue {
 	}
 	
 	public int type() {
-		return LuaValue.TSTRING;
+		return TSTRING;
 	}
 
 	public String typename() {
@@ -289,19 +289,19 @@ public class LuaString extends LuaValue {
 	public LuaValue   modFrom( double lhs )    { return LuaDouble.dmod(lhs, checkarith()); }
 	
 	// relational operators, these only work with other strings
-	public LuaValue   lt( LuaValue rhs )         { return rhs.isstring() ? (rhs.strcmp(this)>0? LuaValue.TRUE: FALSE) : super.lt(rhs); }
+	public LuaValue   lt( LuaValue rhs )         { return rhs.isstring() ? (rhs.strcmp(this)>0? TRUE : FALSE) : super.lt(rhs); }
 	public boolean lt_b( LuaValue rhs )       { return rhs.isstring() ? rhs.strcmp(this)>0 : super.lt_b(rhs); }
 	public boolean lt_b( int rhs )         { typerror("attempt to compare string with number"); return false; }
 	public boolean lt_b( double rhs )      { typerror("attempt to compare string with number"); return false; }
-	public LuaValue   lteq( LuaValue rhs )       { return rhs.isstring() ? (rhs.strcmp(this)>=0? LuaValue.TRUE: FALSE) : super.lteq(rhs); }
+	public LuaValue   lteq( LuaValue rhs )       { return rhs.isstring() ? (rhs.strcmp(this)>=0? TRUE : FALSE) : super.lteq(rhs); }
 	public boolean lteq_b( LuaValue rhs )     { return rhs.isstring() ? rhs.strcmp(this)>=0 : super.lteq_b(rhs); }
 	public boolean lteq_b( int rhs )       { typerror("attempt to compare string with number"); return false; }
 	public boolean lteq_b( double rhs )    { typerror("attempt to compare string with number"); return false; }
-	public LuaValue   gt( LuaValue rhs )         { return rhs.isstring() ? (rhs.strcmp(this)<0? LuaValue.TRUE: FALSE) : super.gt(rhs); }
+	public LuaValue   gt( LuaValue rhs )         { return rhs.isstring() ? (rhs.strcmp(this)<0? TRUE : FALSE) : super.gt(rhs); }
 	public boolean gt_b( LuaValue rhs )       { return rhs.isstring() ? rhs.strcmp(this)<0 : super.gt_b(rhs); }
 	public boolean gt_b( int rhs )         { typerror("attempt to compare string with number"); return false; }
 	public boolean gt_b( double rhs )      { typerror("attempt to compare string with number"); return false; }
-	public LuaValue   gteq( LuaValue rhs )       { return rhs.isstring() ? (rhs.strcmp(this)<=0? LuaValue.TRUE: FALSE) : super.gteq(rhs); }
+	public LuaValue   gteq( LuaValue rhs )       { return rhs.isstring() ? (rhs.strcmp(this)<=0? TRUE : FALSE) : super.gteq(rhs); }
 	public boolean gteq_b( LuaValue rhs )     { return rhs.isstring() ? rhs.strcmp(this)<=0 : super.gteq_b(rhs); }
 	public boolean gteq_b( int rhs )       { typerror("attempt to compare string with number"); return false; }
 	public boolean gteq_b( double rhs )    { typerror("attempt to compare string with number"); return false; }

@@ -33,7 +33,6 @@ import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Prototype;
-import org.luaj.vm2.compiler.FuncState.BlockCnt;
 import org.luaj.vm2.lib.MathLib;
 
 
@@ -260,7 +259,7 @@ public class LexState extends Constants {
 	}
 
 	void lexerror( String msg, int token ) {
-		String cid = Lua.chunkid( source.tojstring() );
+		String cid = Lua.chunkid(source.tojstring() );
 		L.pushfstring( cid+":"+linenumber+": "+msg );
 		if ( token != 0 )
 			L.pushfstring( "syntax error: "+msg+" near "+txtToken(token) );
@@ -935,7 +934,7 @@ public class LexState extends Constants {
 	
 	void new_localvar(LuaString name) {
 		int reg = registerlocalvar(name);
-		fs.checklimit(dyd.n_actvar + 1, FuncState.LUAI_MAXVARS, "local variables");
+		fs.checklimit(dyd.n_actvar + 1, LUAI_MAXVARS, "local variables");
 		if (dyd.actvar == null || dyd.n_actvar + 1 > dyd.actvar.length)
 			dyd.actvar = realloc(dyd.actvar, Math.max(1, dyd.n_actvar * 2));
 		dyd.actvar[dyd.n_actvar++] = new Vardesc(reg);
@@ -1028,7 +1027,7 @@ public class LexState extends Constants {
 	 */
 	boolean findlabel (int g) {
 		int i;
-		BlockCnt bl = fs.bl;
+		FuncState.BlockCnt bl = fs.bl;
 		Dyndata dyd = this.dyd;
 		Labeldesc gt = dyd.gt[g];
 		/* check labels in current block for a match */
@@ -1103,7 +1102,7 @@ public class LexState extends Constants {
 	  fs.exp2nextreg(v);  /* fix it at stack top (for GC) */
 	}
 
-	void open_func (FuncState fs, BlockCnt bl) {
+	void open_func (FuncState fs, FuncState.BlockCnt bl) {
 		  fs.prev = this.fs;  /* linked list of funcstates */
 		  fs.ls = this;
 		  this.fs = fs;
@@ -1301,7 +1300,7 @@ public class LexState extends Constants {
 	void body(expdesc e, boolean needself, int line) {
 		/* body -> `(' parlist `)' chunk END */
 		FuncState new_fs = new FuncState();
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		new_fs.f = addprototype();
 		new_fs.f.linedefined = line;
 		open_func(new_fs, bl);
@@ -1633,7 +1632,7 @@ public class LexState extends Constants {
 	void block () {
 	  /* block -> chunk */
 	  FuncState fs = this.fs;
-	  BlockCnt bl = new BlockCnt();
+	  FuncState.BlockCnt bl = new FuncState.BlockCnt();
 	  fs.enterblock(bl, false);
 	  this.statlist();
 	  fs.leaveblock();
@@ -1772,7 +1771,7 @@ public class LexState extends Constants {
 		FuncState fs = this.fs;
 		int whileinit;
 		int condexit;
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		this.next();  /* skip WHILE */
 		whileinit = fs.getlabel();
 		condexit = this.cond();
@@ -1790,8 +1789,8 @@ public class LexState extends Constants {
 		int condexit;
 		FuncState fs = this.fs;
 		int repeat_init = fs.getlabel();
-		BlockCnt bl1 = new BlockCnt();
-		BlockCnt bl2 = new BlockCnt();
+		FuncState.BlockCnt bl1 = new FuncState.BlockCnt();
+		FuncState.BlockCnt bl2 = new FuncState.BlockCnt();
 		fs.enterblock(bl1, true); /* loop block */
 		fs.enterblock(bl2, false); /* scope block */
 		this.next(); /* skip REPEAT */
@@ -1819,7 +1818,7 @@ public class LexState extends Constants {
 
 	void forbody(int base, int line, int nvars, boolean isnum) {
 		/* forbody -> DO block */
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		FuncState fs = this.fs;
 		int prep, endfor;
 		this.adjustlocalvars(3); /* control variables */
@@ -1894,7 +1893,7 @@ public class LexState extends Constants {
 		/* forstat -> FOR (fornum | forlist) END */
 		FuncState fs = this.fs;
 		LuaString varname;
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		fs.enterblock(bl, true); /* scope for loop and control variables */
 		this.next(); /* skip `for' */
 		varname = this.str_checkname(); /* first variable name */
@@ -1917,7 +1916,7 @@ public class LexState extends Constants {
 	void test_then_block(IntPtr escapelist) {
 		/* test_then_block -> [IF | ELSEIF] cond THEN block */
 		expdesc v = new expdesc();
-		BlockCnt bl = new BlockCnt();
+		FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		int jf;  /* instruction to skip 'then' code (if condition is false) */
 		this.next(); /* skip IF or ELSEIF */
 		expr(v);  /* read expression */
@@ -2145,7 +2144,7 @@ public class LexState extends Constants {
 	** upvalue named LUA_ENV
 	*/
 	public void mainfunc(FuncState funcstate) {
-		  BlockCnt bl = new BlockCnt();
+		  FuncState.BlockCnt bl = new FuncState.BlockCnt();
 		  open_func(funcstate, bl);
 		  fs.f.is_vararg = 1;  /* main function is always vararg */
 		  expdesc v = new expdesc();

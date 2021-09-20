@@ -37,13 +37,13 @@ import org.luaj.vm2.lib.BaseLib;
  * Compiler for Lua.
  * 
  * <p>
- * Compiles lua source files into lua bytecode within a {@link Prototype}, 
+ * Compiles lua source files into lua bytecode within a {@link Prototype},
  * loads lua binary files directly into a {@link Prototype}, 
- * and optionaly instantiates a {@link LuaClosure} around the result 
+ * and optionaly instantiates a {@link LuaClosure} around the result
  * using a user-supplied environment.  
  * 
  * <p>
- * Implements the {@link org.luaj.vm2.Globals.Compiler} interface for loading 
+ * Implements the {@link Globals.Compiler} interface for loading
  * initialized chunks, which is an interface common to 
  * lua bytecode compiling and java bytecode compiling.
  *  
@@ -127,9 +127,9 @@ public class LuaC extends Constants implements Globals.Compiler, Globals.Loader 
 			funcstate.f = new Prototype();
 			funcstate.f.source = (LuaString) LuaValue.valueOf(name);
 			lexstate.mainfunc(funcstate);
-			LuaC._assert (funcstate.prev == null);
+			_assert(funcstate.prev == null);
 			/* all scopes should be correctly finished */
-			LuaC._assert (lexstate.dyd == null 
+			_assert(lexstate.dyd == null
 					|| (lexstate.dyd.n_actvar == 0 && lexstate.dyd.n_gt == 0 && lexstate.dyd.n_label == 0));
 			return funcstate.f;
 		}

@@ -289,14 +289,14 @@ public class LuaClosure extends LuaFunction {
 					continue;
 					
 				case Lua.OP_LOADBOOL:/*	A B C	R(A):= (Bool)B: if (C) pc++			*/
-	                stack[a] = (i>>>23!=0)? LuaValue.TRUE: LuaValue.FALSE;
+	                stack[a] = (i>>>23!=0)? TRUE : FALSE;
 	                if ((i&(0x1ff<<14)) != 0)
 	                    ++pc; /* skip next instruction (if C) */
 	                continue;
 	
 				case Lua.OP_LOADNIL: /*	A B	R(A):= ...:= R(A+B):= nil			*/
 					for ( b=i>>>23; b-->=0; )
-						stack[a++] = LuaValue.NIL;
+						stack[a++] = NIL;
 					continue;
 					
 				case Lua.OP_GETUPVAL: /*	A B	R(A):= UpValue[B]				*/
@@ -601,7 +601,7 @@ public class LuaClosure extends LuaFunction {
 		final LuaValue e = r.errorfunc;
 		r.errorfunc = null;
 		try {
-			return e.call( LuaValue.valueOf(msg) ).tojstring();
+			return e.call(valueOf(msg) ).tojstring();
 		} catch ( Throwable t ) {
 			return "error in error handling";
 		} finally {

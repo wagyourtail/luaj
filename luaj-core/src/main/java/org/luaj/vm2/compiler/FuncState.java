@@ -24,7 +24,6 @@ package org.luaj.vm2.compiler;
 import java.util.Hashtable;
 
 import org.luaj.vm2.LocVars;
-import org.luaj.vm2.Lua;
 import org.luaj.vm2.LuaDouble;
 import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
@@ -380,7 +379,7 @@ public class FuncState extends Constants {
 			SETARG_A(i, reg);
 		else
 			/* no register to put value or register already has the value */
-			i.set(CREATE_ABC(OP_TEST, GETARG_B(i.get()), 0, Lua.GETARG_C(i.get())));
+			i.set(CREATE_ABC(OP_TEST, GETARG_B(i.get()), 0, GETARG_C(i.get())));
 
 		return true;
 	}
@@ -743,8 +742,7 @@ public class FuncState extends Constants {
 	void invertjump(expdesc e) {
 		InstructionPtr pc = this.getjumpcontrol(e.u.info);
 		_assert (testTMode(GET_OPCODE(pc.get()))
-				&& GET_OPCODE(pc.get()) != OP_TESTSET && Lua
-				.GET_OPCODE(pc.get()) != OP_TEST);
+				&& GET_OPCODE(pc.get()) != OP_TESTSET && GET_OPCODE(pc.get()) != OP_TEST);
 		// SETARG_A(pc, !(GETARG_A(pc.get())));
 		int a = GETARG_A(pc.get());
 		int nota = (a!=0? 0: 1);
@@ -861,7 +859,7 @@ public class FuncState extends Constants {
 	void indexed(expdesc t, expdesc k) {
 		t.u.ind_t = (short) t.u.info;
 		t.u.ind_idx = (short) this.exp2RK(k);
-		LuaC._assert(t.k == LexState.VUPVAL || vkisinreg(t.k));
+		_assert(t.k == LexState.VUPVAL || vkisinreg(t.k));
 		t.u.ind_vt = (short) ((t.k == LexState.VUPVAL) ? LexState.VUPVAL : LexState.VLOCAL);
 		t.k = LexState.VINDEXED;
 	}
@@ -1090,12 +1088,12 @@ public class FuncState extends Constants {
 		this.dischargejpc(); /* `pc' will change */
 		/* put new instruction in code array */
 		if (f.code == null || this.pc + 1 > f.code.length)
-			f.code = LuaC.realloc(f.code, this.pc * 2 + 1);
+			f.code = realloc(f.code, this.pc * 2 + 1);
 		f.code[this.pc] = instruction;
 		/* save corresponding line information */
 		if (f.lineinfo == null || this.pc + 1 > f.lineinfo.length)
-			f.lineinfo = LuaC.realloc(f.lineinfo,
-					this.pc * 2 + 1);
+			f.lineinfo = realloc(f.lineinfo,
+								 this.pc * 2 + 1);
 		f.lineinfo[this.pc] = line;
 		return this.pc++;
 	}
@@ -1112,7 +1110,7 @@ public class FuncState extends Constants {
 	int codeABx(int o, int a, int bc) {
 		_assert (getOpMode(o) == iABx || getOpMode(o) == iAsBx);
 		_assert (getCMode(o) == OpArgN);
-		_assert (bc >= 0 && bc <= Lua.MAXARG_Bx);
+		_assert (bc >= 0 && bc <= MAXARG_Bx);
 		return this.code(CREATE_ABx(o, a, bc), this.ls.lastline);
 	}
 

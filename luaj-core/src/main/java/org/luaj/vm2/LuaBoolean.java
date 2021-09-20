@@ -58,7 +58,7 @@ public final class LuaBoolean extends LuaValue {
 	}
 
 	public int type() {
-		return LuaValue.TBOOLEAN;
+		return TBOOLEAN;
 	}
 
 	public String typename() {
@@ -70,7 +70,7 @@ public final class LuaBoolean extends LuaValue {
 	}
 
 	public LuaValue not() {
-		return v ? FALSE : LuaValue.TRUE;
+		return v ? FALSE : TRUE;
 	}
 
 	/**

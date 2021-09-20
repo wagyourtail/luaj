@@ -145,7 +145,7 @@ public class LuaTable extends LuaValue implements Metatable {
 	}
 	
 	public int type() {
-		return LuaValue.TTABLE;
+		return TTABLE;
 	}
 
 	public String typename() {
@@ -841,7 +841,7 @@ public class LuaTable extends LuaValue implements Metatable {
 	 * @return count of keys in the table
 	 * */
 	public int keyCount() {
-		LuaValue k = LuaValue.NIL;
+		LuaValue k = NIL;
 		for ( int i=0; true; i++ ) {
 			Varargs n = next(k);
 			if ( (k = n.arg1()).isnil() )
@@ -855,7 +855,7 @@ public class LuaTable extends LuaValue implements Metatable {
 	 * */
 	public LuaValue[] keys() {
 		Vector l = new Vector();
-		LuaValue k = LuaValue.NIL;
+		LuaValue k = NIL;
 		while ( true ) {
 			Varargs n = next(k);
 			if ( (k = n.arg1()).isnil() )
@@ -873,7 +873,7 @@ public class LuaTable extends LuaValue implements Metatable {
 		if ( this == val ) return true;
 		if ( m_metatable == null || !val.istable() ) return false;
 		LuaValue valmt = val.getmetatable();
-		return valmt!=null && LuaValue.eqmtcall(this, m_metatable.toLuaValue(), val, valmt);
+		return valmt!=null && eqmtcall(this, m_metatable.toLuaValue(), val, valmt);
 	}
 
 	/** Unpack all the elements of this table */

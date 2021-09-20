@@ -46,7 +46,7 @@ public class LuaNil extends LuaValue {
 	LuaNil() {}
 
 	public int type() {
-		return LuaValue.TNIL;
+		return TNIL;
 	}
 
 	public String toString() {
@@ -62,7 +62,7 @@ public class LuaNil extends LuaValue {
 	}
 
 	public LuaValue not()  { 
-		return LuaValue.TRUE;  
+		return TRUE;
 	}
 	
 	public boolean toboolean() { 

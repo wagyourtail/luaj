@@ -47,7 +47,7 @@
 	<target name="classes" depends="dirs,wtk-libs">
 		<mkdir dir="build/midlet/src"/>
 		<copy todir="build/midlet/src">
-			<fileset dir="src/core"/>
+			<fileset dir="luaj-core/src/main/java/core"/>
 			<fileset dir="src/jme"/>
 			<fileset dir="examples/jme"/>
 			<filterchain>

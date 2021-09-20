@@ -94,7 +94,7 @@ public class LuaError extends RuntimeException {
 	}
 	
 	/** Construct LuaError when a program exception occurs. 
-	 * <p> 
+	 * <p> an
 	 * All errors generated from lua code should throw LuaError(String) instead.
 	 * @param cause the Throwable that caused the error, if known.  
 	 */

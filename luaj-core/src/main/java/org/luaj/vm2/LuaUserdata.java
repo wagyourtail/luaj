@@ -41,7 +41,7 @@ public class LuaUserdata extends LuaValue {
 	}
 	
 	public int type() {
-		return LuaValue.TUSERDATA;
+		return TUSERDATA;
 	}
 	
 	public String typename() {
@@ -110,7 +110,7 @@ public class LuaUserdata extends LuaValue {
 		if ( val.raweq(this) ) return true;
 		if ( m_metatable == null || !val.isuserdata() ) return false;
 		LuaValue valmt = val.getmetatable();
-		return valmt!=null && LuaValue.eqmtcall(this, m_metatable, val, valmt); 
+		return valmt!=null && eqmtcall(this, m_metatable, val, valmt);
 	}
 	
 	// equality w/o metatable processing
@@ -121,6 +121,6 @@ public class LuaUserdata extends LuaValue {
 	
 	// __eq metatag processing
 	public boolean eqmt( LuaValue val ) {
-		return m_metatable!=null && val.isuserdata()? LuaValue.eqmtcall(this, m_metatable, val, val.getmetatable()): false; 
+		return m_metatable!=null && val.isuserdata()? eqmtcall(this, m_metatable, val, val.getmetatable()): false;
 	}
 }

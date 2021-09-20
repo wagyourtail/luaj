@@ -387,7 +387,7 @@ public class WeakTable implements Metatable {
 				return (LuaValue) u;
 			Object o = ob.get();
 			if ( o != null ) {
-				LuaValue ud = LuaValue.userdataOf(o,mt);
+				LuaValue ud = userdataOf(o, mt);
 				ref = new WeakReference(ud);
 				return ud;
 			} else {
