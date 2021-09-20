@@ -13,3 +13,5 @@ jit/
 *.zip
 docs
 *.0
+.idea
+*.iml
