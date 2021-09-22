@@ -143,7 +143,7 @@ public class LexState extends Constants {
 		TK_WHILE = 278,
 		/* other terminal symbols */
 		TK_CONCAT = 279, TK_DOTS = 280, TK_EQ = 281, TK_GE = 282, TK_LE = 283, TK_NE = 284, TK_DBCOLON = 285,
-		TK_EOS = 286, TK_NUMBER = 287, TK_NAME = 288, TK_STRING = 289;
+		TK_EOS = 286, TK_NUMBER = 287, TK_NAME = 288, TK_STRING = 289, TK_EOF = 290;
 
 	final static int FIRST_RESERVED = TK_AND;
 	final static int NUM_RESERVED   = TK_WHILE+1-FIRST_RESERVED;
@@ -409,7 +409,7 @@ public class LexState extends Constants {
 		for (boolean endloop = false; !endloop;) {
 			switch (current) {
 			case EOZ:
-				lexerror(seminfo != null? "unfinished long string": "unfinished long comment", TK_EOS);
+				lexerror(seminfo != null? "unfinished long string": "unfinished long comment", TK_EOF);
 				break; /* to avoid warnings */
 			case '[': {
 				if (skip_sep() == sep) {
@@ -601,11 +601,13 @@ public class LexState extends Constants {
 			}
 			case '=': {
 				nextChar();
-				if (current != '=')
-					return '=';
-				else {
+				if (current == '+') {
+
+				} else if (current == '=') {
 					nextChar();
 					return TK_EQ;
+				} else {
+					return '=';
 				}
 			}
 			case '<': {
