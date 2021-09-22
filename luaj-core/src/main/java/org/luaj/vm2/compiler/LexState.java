@@ -133,7 +133,7 @@ public class LexState extends Constants {
 	/* ORDER RESERVED */
 	final static String luaX_tokens[] = { "and", "break", "do", "else", "elseif", "end", "false", "for", "function",
 			"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "..",
-			"...", "==", ">=", "<=", "~=", "::", "<eos>", "<number>", "<name>", "<string>", "<eof>" };
+			"...", "==", ">=", "<=", "~=", "::", "<eos>", "<number>", "<name>", "<string>", "<eof>", "+=" };
 
 	final static int
 	/* terminal symbols denoted by reserved words */
@@ -143,7 +143,7 @@ public class LexState extends Constants {
 		TK_WHILE = 278,
 		/* other terminal symbols */
 		TK_CONCAT = 279, TK_DOTS = 280, TK_EQ = 281, TK_GE = 282, TK_LE = 283, TK_NE = 284, TK_DBCOLON = 285,
-		TK_EOS = 286, TK_NUMBER = 287, TK_NAME = 288, TK_STRING = 289, TK_EOF = 290;
+		TK_EOS = 286, TK_NUMBER = 287, TK_NAME = 288, TK_STRING = 289, TK_EOF = 290, TK_PEQ = 291;
 
 	final static int FIRST_RESERVED = TK_AND;
 	final static int NUM_RESERVED   = TK_WHILE+1-FIRST_RESERVED;
@@ -678,6 +678,15 @@ public class LexState extends Constants {
 			}
 			case EOZ: {
 				return TK_EOS;
+			}
+			case '+': {
+				nextChar();
+				if (current == '=') {
+					nextChar();
+					return TK_PEQ;
+				} else {
+					return '+';
+				}
 			}
 			default: {
 				if (isalpha(current) || current == '_') {
@@ -1294,6 +1303,20 @@ public class LexState extends Constants {
 		return n;
 	}
 
+	int explist(expdesc v, int op, LHS_assign lh) {
+		/* explist1 -> expr { `,' expr } */
+		int n = 1; /* at least one expression */
+		LHS_assign p = lh;
+		this.expr(v, op, p.v);
+		while ( this.testnext(',') ) {
+			if (p != null) p = p.prev;
+			fs.exp2nextreg(v);
+			this.expr(v, op, p == null ? null : p.v);
+			n++;
+		}
+		return n;
+	}
+
 	void funcargs(expdesc f, int line) {
 		FuncState fs = this.fs;
 		expdesc args = new expdesc();
@@ -1448,7 +1471,7 @@ public class LexState extends Constants {
 			return;
 		}
 		default: {
-			this.suffixedexp(v);
+			this.singlevar(v);
 			return;
 		}
 		}
@@ -1531,15 +1554,18 @@ public class LexState extends Constants {
 	** subexpr -> (simpleexp | unop subexpr) { binop subexpr }
 	** where `binop' is any binary operator with a priority higher than `limit'
 	*/
-	int subexpr(expdesc v, int limit) {
+	int subexpr(expdesc v, int limit, int pop, expdesc pv) {
 		int op;
 		int uop;
 		this.enterlevel();
+		if (pv != null) {
+			this.enterlevel();
+		}
 		uop = getunopr(this.t.token);
 		if (uop != OPR_NOUNOPR) {
 			int line = linenumber;
 			this.next();
-			this.subexpr(v, UNARY_PRIORITY);
+			this.subexpr(v, UNARY_PRIORITY, 0, null);
 			fs.prefix(uop, v, line);
 		} else
 			this.simpleexp(v);
@@ -1551,16 +1577,31 @@ public class LexState extends Constants {
 			this.next();
 			fs.infix(op, v);
 			/* read sub-expression with higher priority */
-			int nextop = this.subexpr(v2, priority[op].right);
+			int nextop = this.subexpr(v2, priority[op].right, 0, null);
 			fs.posfix(op, v, v2, line);
 			op = nextop;
+		}
+		if (pv != null) {
+			this.leavelevel();
+			expdesc v2 = new expdesc();
+			v2.f.i = pv.f.i;
+			v2.k = pv.k;
+			v2.u.ind_idx = pv.u.ind_idx;
+			v2.u.ind_t = pv.u.ind_t;
+			v2.u.ind_vt = pv.u.ind_vt;
+			v2.t.i = pv.t.i;
+			fs.posfix(pop, v, v2, linenumber);
 		}
 		this.leavelevel();
 		return op; /* return first untreated operator */
 	}
 
 	void expr(expdesc v) {
-		this.subexpr(v, 0);
+		this.subexpr(v, 0, 0, null);
+	}
+
+	void expr(expdesc v, int pop, expdesc pv) {
+		this.subexpr(v, 0, pop, pv);
 	}
 
 	/* }==================================================================== */
@@ -1635,6 +1676,34 @@ public class LexState extends Constants {
 			fs.codeABC(op, extra, v.u.info, 0);
 			fs.reserveregs(1);
 		}
+	}
+
+	void macroAssignment(LHS_assign lh, int nvars, int tkEQ) {
+		expdesc e = new expdesc();
+		this.check_condition(VLOCAL <= lh.v.k && lh.v.k <= VINDEXED, "syntax error");
+		if (this.testnext(',')) { /* assignment -> `,' primaryexp assignment */
+			LHS_assign nv = new LHS_assign();
+			nv.prev = lh;
+			this.suffixedexp(nv.v);
+			if (nv.v.k != VINDEXED)
+				this.check_conflict(lh, nv.v);
+			this.assignment(nv, nvars+1);
+		} else { /* assignment . `=' explist1 */
+			int nexps;
+			this.checknext(tkEQ);
+			nexps = this.explist(e, getbinopr('+'), lh);
+			if (nexps != nvars) {
+				this.adjust_assign(nvars, nexps, e);
+				if (nexps > nvars)
+					this.fs.freereg -= nexps-nvars; /* remove extra values */
+			} else {
+				fs.setoneret(e); /* close last expression */
+				fs.storevar(lh.v, e);
+				return; /* avoid default */
+			}
+		}
+		e.init(VNONRELOC, this.fs.freereg-1); /* default assignment */
+		fs.storevar(lh.v, e);
 	}
 
 	void assignment(LHS_assign lh, int nvars) {
@@ -1957,6 +2026,9 @@ public class LexState extends Constants {
 		if (t.token == '=' || t.token == ',') { /* stat -> assignment ? */
 			v.prev = null;
 			assignment(v, 1);
+		} else if (t.token == TK_PEQ) {
+			v.prev = null;
+			macroAssignment(v, 1, TK_PEQ);
 		} else { /* stat -> func */
 			check_condition(v.v.k == VCALL, "syntax error");
 			SETARG_C(fs.getcodePtr(v.v), 1); /* call statement uses no results */
