@@ -133,7 +133,7 @@ public class LexState extends Constants {
 	/* ORDER RESERVED */
 	final static String luaX_tokens[] = { "and", "break", "do", "else", "elseif", "end", "false", "for", "function",
 			"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "..",
-			"...", "==", ">=", "<=", "~=", "::", "<eos>", "<number>", "<name>", "<string>", "<eof>", };
+			"...", "==", ">=", "<=", "~=", "::", "<eos>", "<number>", "<name>", "<string>", "<eof>" };
 
 	final static int
 	/* terminal symbols denoted by reserved words */
@@ -601,13 +601,11 @@ public class LexState extends Constants {
 			}
 			case '=': {
 				nextChar();
-				if (current == '+') {
-
-				} else if (current == '=') {
+				if (current != '=') {
+					return '=';
+				} else {
 					nextChar();
 					return TK_EQ;
-				} else {
-					return '=';
 				}
 			}
 			case '<': {
