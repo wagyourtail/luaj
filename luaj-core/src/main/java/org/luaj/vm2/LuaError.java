@@ -121,6 +121,8 @@ public class LuaError extends RuntimeException {
 	public LuaError(String message, File file, int line) {
 		super( message );
 		this.level = 1;
+		this.file = file;
+		this.line = line;
 	}
 
 	/**
