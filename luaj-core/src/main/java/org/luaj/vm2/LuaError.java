@@ -55,7 +55,7 @@ public class LuaError extends RuntimeException {
 
 	protected Throwable cause;
 
-	private LuaValue object;
+	protected LuaValue object;
 	
 	/** Get the string message if it was supplied, or a string 
 	 * representation of the message object if that was supplied. (with fileline info if present)

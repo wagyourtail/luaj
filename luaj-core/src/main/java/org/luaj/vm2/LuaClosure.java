@@ -653,20 +653,24 @@ public class LuaClosure extends LuaFunction {
 	/**
 	 * Run the error hook if there is one
 	 *
-	 * @param msg the message to use in error hook processing.
+	 * @param err the error
 	 */
-	String errorHook(String msg, int level) {
-		if (globals == null)
-			return msg;
+	void errorHook(LuaError err, int level) {
+		if (globals == null) {
+			err.traceback = err.getMessage();
+			return;
+		}
 		final LuaThread r = globals.running;
-		if (r.errorfunc == null)
-			return globals.debuglib != null? msg + "\n" + globals.debuglib.traceback(level): msg;
+		if (r.errorfunc == null) {
+			err.traceback = globals.debuglib != null ? err.getMessage() + "\n" + globals.debuglib.traceback(level) : err.getMessage();
+			return;
+		}
 		final LuaValue e = r.errorfunc;
 		r.errorfunc = null;
 		try {
-			return e.call(valueOf(msg) ).tojstring();
+			err.object = e.call(err.getMessageObject());
 		} catch ( Throwable t ) {
-			return "error in error handling";
+			err.traceback = "error in error handling";
 		} finally {
 			r.errorfunc = e;
 		}
@@ -675,7 +679,7 @@ public class LuaClosure extends LuaFunction {
 	private void processErrorHooks(LuaError le, Prototype p, int pc) {
 		le.fileline = (p.source != null? p.source.tojstring(): "?") + ":"
 			+ (p.lineinfo != null && pc >= 0 && pc < p.lineinfo.length? String.valueOf(p.lineinfo[pc]): "?") + ": ";
-		le.traceback = errorHook(le.getMessage(), le.level);
+		errorHook(le, le.level);
 		if (p.source != null) {
 			le.file = fileChunkId(p.source.tojstring());
 		}
