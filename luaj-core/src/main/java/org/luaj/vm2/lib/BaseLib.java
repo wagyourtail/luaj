@@ -455,6 +455,11 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 
 		@Override
 		public Varargs invoke(Varargs args) {
+			LuaValue meta = args.arg1().getmetatable();
+			LuaValue __pairs;
+			if (meta != null && (__pairs = meta.get(LuaValue.PAIRS)).isfunction()) {
+				return __pairs.invoke(args);
+			}
 			return varargsOf(next, args.checktable(1), NIL);
 		}
 	}
@@ -465,6 +470,11 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 
 		@Override
 		public Varargs invoke(Varargs args) {
+			LuaValue meta = args.arg1().getmetatable();
+			LuaValue __ipairs;
+			if (meta != null && (__ipairs = meta.get(LuaValue.IPAIRS)).isfunction()) {
+				return __ipairs.invoke(args);
+			}
 			return varargsOf(inext, args.checktable(1), ZERO);
 		}
 	}
