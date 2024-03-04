@@ -4,6 +4,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaUserdata;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
+import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
 
 import java.util.Arrays;
@@ -26,6 +27,8 @@ class JavaMap<T, U> extends LuaUserdata {
 
         LuaTable map_metatable = new LuaTable();
         map_metatable.rawset(LuaValue.PAIRS, new MapPairs());
+        map_metatable.rawset(LuaValue.LEN, new LenFunction());
+        setmetatable(map_metatable);
     }
 
     @Override
@@ -37,6 +40,8 @@ class JavaMap<T, U> extends LuaUserdata {
     public void set(LuaValue key, LuaValue value) {
         ((Map)m_instance).put(CoerceLuaToJava.coerce(key, Object.class), CoerceLuaToJava.coerce(value, Object.class));
     }
+
+
 
 
     private static final class MapPairs extends VarArgFunction {
@@ -58,6 +63,15 @@ class JavaMap<T, U> extends LuaUserdata {
                     return NIL;
                 }
             }, args.arg1(), NIL);
+        }
+
+    }
+
+
+    private static final class LenFunction extends OneArgFunction {
+
+        public LuaValue call(LuaValue u) {
+            return LuaValue.valueOf(((Map<?, ?>)((JavaMap)u).m_instance).size());
         }
 
     }
