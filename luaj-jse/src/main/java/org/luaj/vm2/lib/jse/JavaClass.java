@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 /**
  * LuaValue that represents a Java class.
@@ -71,6 +72,31 @@ class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion {
 	@Override
 	public LuaValue coerce(Object javaValue) {
 		return this;
+	}
+
+	@Override
+	public LuaValue call() {
+		return getConstructor().call();
+	}
+
+	@Override
+	public LuaValue call(LuaValue arg) {
+		return getConstructor().call(arg);
+	}
+
+	@Override
+	public LuaValue call(LuaValue arg1, LuaValue arg2) {
+		return getConstructor().call(arg1, arg2);
+	}
+
+	@Override
+	public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
+		return getConstructor().call(arg1, arg2, arg3);
+	}
+
+	@Override
+	public Varargs invoke(Varargs args) {
+		return getConstructor().invoke(args);
 	}
 
 	Field getField(LuaValue key) {
